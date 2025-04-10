@@ -18,17 +18,21 @@ def get_gemini_response(input,pdf_cotent,prompt):
     response=model.generate_content([input,pdf_content[0],prompt])
     return response.text
 
+import fitz  # PyMuPDF
+import io
+import base64
+
 def input_pdf_setup(uploaded_file):
     if uploaded_file is not None:
         file_bytes = uploaded_file.read()
         pdf = fitz.open(stream=file_bytes, filetype="pdf")
         first_page = pdf[0]
         
-        # Convert first page to image
+        # Render first page as image
         pix = first_page.get_pixmap(dpi=150)
         img_byte_arr = io.BytesIO(pix.tobytes("png"))
 
-        # Encode to base64
+        # Base64 encode the image
         img_data = base64.b64encode(img_byte_arr.getvalue()).decode()
 
         pdf_parts = [
@@ -40,6 +44,7 @@ def input_pdf_setup(uploaded_file):
         return pdf_parts
     else:
         raise FileNotFoundError("No file uploaded")
+
 
 ## Streamlit App
 
