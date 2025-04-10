@@ -18,9 +18,6 @@ def get_gemini_response(input,pdf_cotent,prompt):
     response=model.generate_content([input,pdf_content[0],prompt])
     return response.text
 
-import fitz  # PyMuPDF
-import io
-import base64
 
 def input_pdf_setup(uploaded_file):
     if uploaded_file is not None:
