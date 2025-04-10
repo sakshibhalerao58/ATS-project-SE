@@ -1,14 +1,12 @@
 from dotenv import load_dotenv
 
 load_dotenv()
-import pdf2image
-
 import base64
 import streamlit as st
 import os
 import io
 from PIL import Image 
-
+import pdf2image
 import google.generativeai as genai
 
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
@@ -39,7 +37,6 @@ def input_pdf_setup(uploaded_file):
         return pdf_parts
     else:
         raise FileNotFoundError("No file uploaded")
-
 
 ## Streamlit App
 
@@ -92,3 +89,5 @@ elif submit3:
 
 
    
+
+
