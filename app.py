@@ -1,8 +1,8 @@
 from dotenv import load_dotenv
 
 load_dotenv()
-import fitz  # PyMuPDF
-import io
+import pdf2image
+
 import base64
 import streamlit as st
 import os
@@ -18,24 +18,22 @@ def get_gemini_response(input,pdf_cotent,prompt):
     response=model.generate_content([input,pdf_content[0],prompt])
     return response.text
 
-
 def input_pdf_setup(uploaded_file):
     if uploaded_file is not None:
-        file_bytes = uploaded_file.read()
-        pdf = fitz.open(stream=file_bytes, filetype="pdf")
-        first_page = pdf[0]
-        
-        # Render first page as image
-        pix = first_page.get_pixmap(dpi=150)
-        img_byte_arr = io.BytesIO(pix.tobytes("png"))
+        ## Convert the PDF to image
+        images=pdf2image.convert_from_bytes(uploaded_file.read())
 
-        # Base64 encode the image
-        img_data = base64.b64encode(img_byte_arr.getvalue()).decode()
+        first_page=images[0]
+
+        # Convert to bytes
+        img_byte_arr = io.BytesIO()
+        first_page.save(img_byte_arr, format='JPEG')
+        img_byte_arr = img_byte_arr.getvalue()
 
         pdf_parts = [
             {
-                "mime_type": "image/png",
-                "data": img_data
+                "mime_type": "image/jpeg",
+                "data": base64.b64encode(img_byte_arr).decode()  # encode to base64
             }
         ]
         return pdf_parts
