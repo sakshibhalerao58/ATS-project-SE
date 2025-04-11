@@ -25,14 +25,14 @@ def input_pdf_setup(uploaded_file):
         
         # Render first page as image
         pix = first_page.get_pixmap(dpi=150)
-        img_byte_arr = io.BytesIO(pix.tobytes("png"))
+        img_byte_arr = io.BytesIO(pix.tobytes("jpeg"))
 
         # Base64 encode the image
         img_data = base64.b64encode(img_byte_arr.getvalue()).decode()
 
         pdf_parts = [
             {
-                "mime_type": "image/png",
+                "mime_type": "image/jpeg",
                 "data": img_data
             }
         ]
