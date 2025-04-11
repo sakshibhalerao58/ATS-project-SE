@@ -1,12 +1,13 @@
 from dotenv import load_dotenv
 
 load_dotenv()
+import fitz  # PyMuPDF
 import base64
 import streamlit as st
 import os
 import io
 from PIL import Image 
-import pdf2image
+
 import google.generativeai as genai
 
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
@@ -17,26 +18,26 @@ def get_gemini_response(input,pdf_cotent,prompt):
     return response.text
 
 def input_pdf_setup(uploaded_file):
+    print("Running input_pdf_setup...")  # Debugging checkpoint
     if uploaded_file is not None:
-        ## Convert the PDF to image
-        images=pdf2image.convert_from_bytes(uploaded_file.read())
+        try:
+            file_bytes = uploaded_file.read()
+            pdf = fitz.open(stream=file_bytes, filetype="pdf")
+            print(f"PDF loaded: {len(pdf)} pages")  # Check PDF opened
 
-        first_page=images[0]
+            first_page = pdf[0]
+            pix = first_page.get_pixmap(dpi=150)
+            img_byte_arr = io.BytesIO(pix.tobytes("png"))
 
-        # Convert to bytes
-        img_byte_arr = io.BytesIO()
-        first_page.save(img_byte_arr, format='JPEG')
-        img_byte_arr = img_byte_arr.getvalue()
+            img_data = base64.b64encode(img_byte_arr.getvalue()).decode()
 
-        pdf_parts = [
-            {
-                "mime_type": "image/jpeg",
-                "data": base64.b64encode(img_byte_arr).decode()  # encode to base64
-            }
-        ]
-        return pdf_parts
+            return [{"mime_type": "image/png", "data": img_data}]
+        except Exception as e:
+            print("Error in input_pdf_setup:", e)
+            raise
     else:
         raise FileNotFoundError("No file uploaded")
+
 
 ## Streamlit App
 
@@ -85,5 +86,9 @@ elif submit3:
         st.write(response)
     else:
         st.write("Please uplaod the resume")
+
+
+
+   
 
 
