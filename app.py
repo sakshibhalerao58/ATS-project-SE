@@ -18,23 +18,25 @@ def get_gemini_response(input,pdf_cotent,prompt):
     return response.text
 
 def input_pdf_setup(uploaded_file):
-    print("Running input_pdf_setup...")  # Debugging checkpoint
     if uploaded_file is not None:
-        try:
-            file_bytes = uploaded_file.read()
-            pdf = fitz.open(stream=file_bytes, filetype="pdf")
-            print(f"PDF loaded: {len(pdf)} pages")  # Check PDF opened
+        file_bytes = uploaded_file.read()
+        pdf = fitz.open(stream=file_bytes, filetype="pdf")
+        first_page = pdf[0]
+        
+        # Render first page as image
+        pix = first_page.get_pixmap(dpi=150)
+        img_byte_arr = io.BytesIO(pix.tobytes("png"))
 
-            first_page = pdf[0]
-            pix = first_page.get_pixmap(dpi=150)
-            img_byte_arr = io.BytesIO(pix.tobytes("png"))
+        # Base64 encode the image
+        img_data = base64.b64encode(img_byte_arr.getvalue()).decode()
 
-            img_data = base64.b64encode(img_byte_arr.getvalue()).decode()
-
-            return [{"mime_type": "image/png", "data": img_data}]
-        except Exception as e:
-            print("Error in input_pdf_setup:", e)
-            raise
+        pdf_parts = [
+            {
+                "mime_type": "image/png",
+                "data": img_data
+            }
+        ]
+        return pdf_parts
     else:
         raise FileNotFoundError("No file uploaded")
 
