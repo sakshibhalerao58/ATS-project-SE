@@ -7,7 +7,7 @@ import json
 
 # Load environment variables
 load_dotenv()
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+GOOGLE_API_KEY = "AIzaSyBcD5YjFMD-iLHk9kkUGhoiB4dDACVwNDo"
 
 if not GOOGLE_API_KEY:
     st.error("GOOGLE_API_KEY not found in environment. Please check your .env file.")
